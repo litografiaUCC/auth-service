@@ -5,6 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,15 +25,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final HandlerExceptionResolver handlerExceptionResolver;
 
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService;
+    private final UserDetailsService employeeDetailsService;
+    private final UserDetailsService clientDetailsService;
 
     public JwtAuthenticationFilter(
         JwtService jwtService,
-        UserDetailsService userDetailsService,
+        @Qualifier("employeeDetailsService") UserDetailsService employeeDetailsService,
+        @Qualifier("clientDetailsService") UserDetailsService clientDetailsService,
         HandlerExceptionResolver handlerExceptionResolver
     ) {
         this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
+        this.employeeDetailsService = employeeDetailsService;
+        this.clientDetailsService = clientDetailsService;
         this.handlerExceptionResolver = handlerExceptionResolver;
     }
 
@@ -55,9 +60,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (userEmail != null && authentication == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                UserDetails userDetails = null;
 
-                if (jwtService.isTokenValid(jwt, userDetails)) {
+                // Determinar qué UserDetailsService utilizar basado en el tipo de usuario
+                if (userEmail.startsWith("EMPLOYEE_")) {
+                    userDetails = this.employeeDetailsService.loadUserByUsername(userEmail);
+                } else if (userEmail.startsWith("CLIENT_")) {
+                    userDetails = this.clientDetailsService.loadUserByUsername(userEmail);
+                }
+
+                if (userDetails != null && jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,

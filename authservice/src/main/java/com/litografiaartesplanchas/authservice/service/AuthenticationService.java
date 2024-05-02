@@ -66,6 +66,7 @@ public class AuthenticationService {
     }
 
     public Object authenticate(LoginUserDto input) {
+        System.out.println(input.toString());
         org.springframework.security.core.Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 input.getEmail(),

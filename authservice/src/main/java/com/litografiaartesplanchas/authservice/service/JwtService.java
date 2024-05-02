@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,11 +20,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
     
-    private final UserDetailsService userDetailsService;
+    private final UserDetailsService employeeDetailsService;
+    private final UserDetailsService clientDetailsService;
 
-    public JwtService(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
+    public JwtService(@Qualifier("employeeDetailsService") UserDetailsService employeeDetailsService, 
+                      @Qualifier("clientDetailsService") UserDetailsService clientDetailsService) {
+        this.employeeDetailsService = employeeDetailsService;
+        this.clientDetailsService = clientDetailsService;
     }
+
 
     @Value("${security.jwt.secret-key}")
     private String secretKey;
@@ -69,13 +74,20 @@ public class JwtService {
 
     public String refreshJwt(String expiredToken) {
         String username = extractUsername(expiredToken);
-
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
+        UserDetails userDetails;
+    
+        if (username != null && username.startsWith("EMPLOYEE_")) {
+            userDetails = employeeDetailsService.loadUserByUsername(username);
+        } else if (username != null && username.startsWith("CLIENT_")) {
+            userDetails = clientDetailsService.loadUserByUsername(username);
+        } else {
+            throw new RuntimeException("Invalid token or user not found");
+        }
+    
         if (username != null && isTokenExpired(expiredToken)) {
             Map<String, Object> extraClaims = new HashMap<>();
             String newToken = generateToken(extraClaims, userDetails);
-
+    
             return newToken;
         } else {
             throw new RuntimeException("Invalid token or user not found");

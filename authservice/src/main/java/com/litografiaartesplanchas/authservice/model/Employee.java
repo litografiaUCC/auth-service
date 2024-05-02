@@ -37,7 +37,7 @@ public class Employee implements UserDetails{
     @Column(name = "correo", nullable = false, length = 255, unique =  true)
     private String email;
 
-    @Column(name = "contraseña", nullable = false, length = 255)
+    @Column(name = "contrasena", nullable = false, length = 255)
     private String password;
 
     @Column(name = "telefono", nullable = true, length = 30)
