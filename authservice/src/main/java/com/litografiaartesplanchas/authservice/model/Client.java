@@ -50,7 +50,7 @@ public class Client implements UserDetails{
 	
 	@Column(name = "numero_documento", nullable = false , length = 45)
 	private String numberDocument;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "id_tipo_documento")
 	private TypeDocument typeDocument;
@@ -173,6 +173,6 @@ public class Client implements UserDetails{
 	public void setTypeDocument(TypeDocument typeDocument) {
 		this.typeDocument = typeDocument;
 	}
-	
+
 	
 }

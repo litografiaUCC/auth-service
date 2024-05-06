@@ -1,4 +1,4 @@
-package com.litografiaartesplanchas.authservice.dtos;
+package com.litografiaartesplanchas.authservice.dto;
 
 import java.math.BigInteger;
 
@@ -17,7 +17,7 @@ public class RegisterUserDto {
 
     private String phoneNumber;
 
-    private int typeUser;
+    private Integer typeUser;
 
     public String getEmail() {
         return email;
@@ -75,11 +75,12 @@ public class RegisterUserDto {
         this.photo = photo;
     }
 
-    public int getTypeUser() {
+    public Integer getTypeUser() {
         return typeUser;
     }
 
-    public void setTypeUser(int typeUser) {
+    public void setTypeUser(Integer typeUser) {
         this.typeUser = typeUser;
     }
+
 }

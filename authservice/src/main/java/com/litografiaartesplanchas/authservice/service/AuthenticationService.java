@@ -1,42 +1,51 @@
 package com.litografiaartesplanchas.authservice.service;
 
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.litografiaartesplanchas.authservice.model.Employee;
-import com.litografiaartesplanchas.authservice.dtos.LoginUserDto;
-import com.litografiaartesplanchas.authservice.dtos.RegisterUserDto;
+import com.litografiaartesplanchas.authservice.config.ClientInfoDetails;
+import com.litografiaartesplanchas.authservice.config.EmployeeInfoDetails;
+import com.litografiaartesplanchas.authservice.dto.RegisterUserDto;
 import com.litografiaartesplanchas.authservice.model.Client;
+import com.litografiaartesplanchas.authservice.model.Employee;
 import com.litografiaartesplanchas.authservice.repository.ClientRepository;
 import com.litografiaartesplanchas.authservice.repository.EmployeeRepository;
 
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.Optional;
+
 @Service
-public class AuthenticationService {
+public class AuthenticationService implements UserDetailsService {
 
-    private final ClientRepository clientRepository;
+    @Autowired
+    private ClientRepository clientRepository;
 
-    private final EmployeeRepository employeeRepository;
-    
-    private final PasswordEncoder passwordEncoder;
-    
-    private final AuthenticationManager authenticationManager;
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
-    public AuthenticationService(
-        ClientRepository clientRepository,
-        EmployeeRepository employeeRepository,
-        AuthenticationManager authenticationManager,
-        PasswordEncoder passwordEncoder
-    ) {
-        this.clientRepository = clientRepository;
-        this.authenticationManager = authenticationManager;
-        this.employeeRepository = employeeRepository;
-        this.passwordEncoder = passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<Client> client = clientRepository.findByEmail(username);
+        if (client.isPresent()) {
+            return new ClientInfoDetails(client.get());
+        }
+
+        Optional<Employee> employee = employeeRepository.findByEmail(username);
+        if (employee.isPresent()) {
+            return new EmployeeInfoDetails(employee.get());
+        }
+
+        throw new UsernameNotFoundException("User not found with username: " + username);
     }
 
-    public Object signup(RegisterUserDto input) {
+    public Object addUser(RegisterUserDto input) {
         if (input.getTypeUser() == 1) {
             Employee employee = new Employee();
             employee.setDocumentNumber(input.getDocumentNumber());
@@ -64,36 +73,16 @@ public class AuthenticationService {
         }
     }
 
-    public Object authenticate(LoginUserDto input) {
-        System.out.println(input.toString());
-        org.springframework.security.core.Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                input.getEmail(),
-                input.getPassword()
-            )
-        );
-        
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    public String extractTokenFromRequest(HttpServletRequest request) {
+    
+    String authorizationHeader = request.getHeader("Authorization");
 
-        if (input.getTypeUser() == 1) {
-            return employeeRepository.findByEmail(input.getEmail())
-                    .orElseThrow(() -> new RuntimeException("Employee not found"));
-        } else if (input.getTypeUser() == 2) {
-            return clientRepository.findByEmail(input.getEmail())
-                    .orElseThrow(() -> new RuntimeException("Client not found"));
-        } else {
-            throw new IllegalArgumentException("Invalid typeUser");
-        }
-        /* if (input.getTypeUser() == 1) {
-            return employeeRepository.findByEmail(input.getEmail())
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
-
-        } else if (input.getTypeUser() == 2) {
-            return clientRepository.findByEmail(input.getEmail())
-                .orElseThrow(() -> new RuntimeException("Client not found"));
-
-        } else {
-            throw new IllegalArgumentException("Invalid typeUser");
-        } */
+    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+        return authorizationHeader.substring(7);
     }
+
+    return null;
+    }
+
+    
 }
