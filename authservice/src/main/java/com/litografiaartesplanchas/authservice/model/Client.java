@@ -48,7 +48,7 @@ public class Client implements UserDetails{
 	@Column(name = "activo", columnDefinition = "BOOLEAN DEFAULT true")
 	private boolean isActive;
 	
-	@Column(name = "numero_documento", nullable = false , length = 45)
+	@Column(name = "numero_documento", nullable = false , length = 45, unique = true)
 	private String numberDocument;
 
 	@ManyToOne
