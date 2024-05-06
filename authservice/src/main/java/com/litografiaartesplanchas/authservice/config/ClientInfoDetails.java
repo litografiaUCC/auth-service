@@ -13,11 +13,13 @@ public class ClientInfoDetails implements UserDetails {
 
     private String email;
     private String password;
+    private Integer id;
     private Collection<? extends GrantedAuthority> authorities;
 
     public ClientInfoDetails(Client client) {
         this.email = client.getUsername();
         this.password = client.getPassword();
+        this.id = client.getId();
         this.authorities = Collections.emptyList();
     }
 
@@ -34,6 +36,10 @@ public class ClientInfoDetails implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    public Integer getId(){
+        return id;
     }
 
     @Override

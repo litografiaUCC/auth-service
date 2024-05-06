@@ -12,11 +12,13 @@ public class EmployeeInfoDetails implements UserDetails {
 
     private String email;
     private String password;
+    private Integer  id;
     private Collection<? extends GrantedAuthority> authorities;
 
     public EmployeeInfoDetails(Employee employee) {
         this.email = employee.getUsername();
         this.password = employee.getPassword();
+        this.id = employee.getId();
         this.authorities = Collections.emptyList();
     }
 
@@ -33,6 +35,10 @@ public class EmployeeInfoDetails implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    public Integer getId(){
+        return id;
     }
 
     @Override
