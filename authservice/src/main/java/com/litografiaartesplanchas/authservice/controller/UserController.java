@@ -1,8 +1,10 @@
 package com.litografiaartesplanchas.authservice.controller;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -42,10 +44,13 @@ public class UserController {
     }
 
     @PostMapping("/generateToken")
-    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<HashMap<String, String>> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+    	System.out.println(authRequest.getUsername());
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
         if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(authRequest.getUsername());
+        	HashMap<String, String> data = new HashMap<String, String>();
+        	data.put("token", jwtService.generateToken(authRequest.getUsername()));
+            return ResponseEntity.ok(data);
         } else {
             throw new UsernameNotFoundException("invalid user request !");
         }
