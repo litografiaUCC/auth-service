@@ -19,7 +19,7 @@ public class TypeDocument {
     @Column(name = "nombre", nullable = false, length = 45)
         private String name;
     
-    @Column(name = "acronym", nullable = true, length = 10)
+    @Column(name = "acronimo", nullable = true, length = 10)
         private String acronym;
 
     public Integer getId(){
