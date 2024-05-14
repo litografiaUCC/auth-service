@@ -2,6 +2,8 @@ package com.litografiaartesplanchas.authservice.dto;
 
 import java.math.BigInteger;
 
+import com.litografiaartesplanchas.authservice.model.TypeDocument;
+
 public class RegisterUserDto {
     private String email;
 
@@ -11,13 +13,17 @@ public class RegisterUserDto {
 
     private String lastName;
 
-    private BigInteger documentNumber;
+    private String documentNumber;
 
     private String photo;
 
     private String phoneNumber;
 
+    private String typePerson;
+    
     private Integer typeUser;
+    
+    private TypeDocument typeDocument;
 
     public String getEmail() {
         return email;
@@ -51,11 +57,11 @@ public class RegisterUserDto {
         this.lastName = lastName;
     }
 
-    public BigInteger getDocumentNumber() {
+    public String getDocumentNumber() {
         return documentNumber;
     }
 
-    public void setDocumentNumber(BigInteger documentNumber) {
+    public void setDocumentNumber(String documentNumber) {
         this.documentNumber = documentNumber;
     }
 
@@ -82,5 +88,21 @@ public class RegisterUserDto {
     public void setTypeUser(Integer typeUser) {
         this.typeUser = typeUser;
     }
+
+	public TypeDocument getTypeDocument() {
+		return typeDocument;
+	}
+
+	public void setTypeDocument(TypeDocument typeDocument) {
+		this.typeDocument = typeDocument;
+	}
+
+	public String getTypePerson() {
+		return typePerson;
+	}
+
+	public void setTypePerson(String typePerson) {
+		this.typePerson = typePerson;
+	}
 
 }

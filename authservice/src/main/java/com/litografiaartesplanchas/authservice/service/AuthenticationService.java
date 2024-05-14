@@ -17,6 +17,7 @@ import com.litografiaartesplanchas.authservice.repository.EmployeeRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.math.BigInteger;
 import java.util.Optional;
 
 @Service
@@ -48,13 +49,14 @@ public class AuthenticationService implements UserDetailsService {
     public Object addUser(RegisterUserDto input) {
         if (input.getTypeUser() == 1) {
             Employee employee = new Employee();
-            employee.setDocumentNumber(input.getDocumentNumber());
+            employee.setDocumentNumber(new BigInteger(input.getDocumentNumber()));
             employee.setEmail(input.getEmail());
             employee.setLastName(input.getLastName());
             employee.setName(input.getName());
             employee.setPhoneNumber(input.getPhoneNumber());
             employee.setPhoto(input.getPhoto());
             employee.setPassword(passwordEncoder.encode(input.getPassword()));
+            employee.setTypeDocument(input.getTypeDocument());
             return employeeRepository.save(employee);
 
         } else if (input.getTypeUser() == 2) {
@@ -66,6 +68,8 @@ public class AuthenticationService implements UserDetailsService {
             client.setPhone(input.getPhoneNumber());
             client.setPhoto(input.getPhoto());
             client.setPassword(passwordEncoder.encode(input.getPassword()));
+            client.setTypeDocument(input.getTypeDocument());
+            client.setTypePerson(input.getTypePerson());
             return clientRepository.save(client);
 
         } else {
